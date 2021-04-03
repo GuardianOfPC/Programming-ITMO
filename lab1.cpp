@@ -240,6 +240,7 @@ private:
         float a = getLength(vertices[0], vertices[1]);
         float b = getLength(vertices [1], vertices[2]);
         float c = getLength(vertices[0], vertices[2]);
+        
         square = sqrt(p * (p - a) * (p - b) * (p - c));
     }
 
@@ -279,7 +280,7 @@ public:
     }
 
     ~CTriangle(){
-        std::cout << "Destructor of Triangle";
+        std::cout << "Destructor of Triangle\n";
     }
 };
 
@@ -374,15 +375,15 @@ private:
     }
 
     void isFigure() override {
-        bool result = false;
+        bool result;
         float a = getLength(vertices[0], vertices[1]);
         float b = getLength(vertices [1], vertices[2]);
         float c = getLength(vertices[2], vertices[3]);
 
-        if ((a == b) == c){
-            result = false;
-        } else {
+        if ((a == b) && (a == c)){
             result = true;
+        } else {
+            result = false;
         }
 
         if (size < 4 || !result)
