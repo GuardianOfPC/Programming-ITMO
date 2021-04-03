@@ -53,7 +53,6 @@ public:
 
 class CFigure{
 protected:
-
     static float getLength(const CPoint& a, const CPoint& b){
         return sqrt(pow(b.getX()-a.getX(), 2) + pow(b.getY() - a.getY(), 2));
     }
@@ -74,16 +73,7 @@ public:
                 return false;
             }
         }
-        float square = 0;
-        for (int i = 0; i < vertices.size() - 1; i++){
-            square += vertices[i].getX() * vertices[i + 1].getY() - vertices[i+1].getX() * vertices[i].getY();
-        }
-        square += vertices[vertices.size() - 1].getX() * vertices[0].getY() - vertices[0].getX() * vertices[vertices.size() - 1].getY();
-        if (square == 0){
-            return false;
-        }
         return true;
-
     }
 
     void getData(){
@@ -199,8 +189,7 @@ public:
             setPerimeter();
             setSquare();
         } else {
-            std::cout << "It's not a convex Polygon";
-            exit(1);
+            throw std::runtime_error("It's not a convex Polygon");
         }
     }
 
@@ -218,7 +207,7 @@ public:
 
     CPolygon& operator = (const CPolygon &p){
         if (!isConvex(p.vertices)){
-            std::cout << "It's not convex polygon\n";
+            throw std::runtime_error("It's not convex polygon\n");
         } else {
             return *this;
         }
@@ -251,7 +240,7 @@ private:
         float a = getLength(vertices[0], vertices[1]);
         float b = getLength(vertices [1], vertices[2]);
         float c = getLength(vertices[0], vertices[2]);
-        square = sqrt(p * (p - a) * (p - a) * (p - b) * (p - c));
+        square = sqrt(p * (p - a) * (p - b) * (p - c));
     }
 
 public:
@@ -262,19 +251,18 @@ public:
             for (int i = 0; i < 3; i ++){
                 vertices.push_back(arr[i]);
             }
-            setPerimeter();
-            setSquare();
         } else {
-            std::cout << "It's not convex triangle";
-            exit(1);
+            throw std::runtime_error("It's not convex triangle");
         }
     }
 
     float getSquare() override{
+        setSquare();
         return square;
     }
 
     float getPerimeter() override{
+        setPerimeter();
         return perimeter;
     }
 
@@ -284,14 +272,14 @@ public:
 
     CTriangle& operator = (const CTriangle &p){
         if (!isConvex(p.vertices)){
-            std::cout << "It's not convex triangle\n";
+            throw std::runtime_error ("It's not convex triangle\n");
         } else {
             return *this;
         }
     }
 
     ~CTriangle(){
-        std::cout << "Destructor of the Triangle\n";
+        std::cout << "Destructor of Triangle";
     }
 };
 
@@ -307,7 +295,7 @@ private:
         float angle2 = getAngle(vertices[3], vertices[0], vertices[1]) * 180 / M_PI;
 
         if ((a != b) && (angle1 + angle2 == (float) 180))
-            throw std::runtime_error("It\'s not trapezoid");
+            throw std::runtime_error("It's not trapezoid");
     }
 
     void setPerimeter(){
@@ -334,8 +322,7 @@ public:
             size = size_;
             isFigure();
         } else {
-            std::cout << "It's not convex trapezoid";
-            exit(1);
+            throw std::runtime_error("It's not convex trapezoid");
         }
     }
 
@@ -357,7 +344,7 @@ public:
 
     CTrapezoid& operator = (const CTrapezoid &p){
         if (!isConvex(p.vertices)){
-            std::cout << "It's not a convex trapezoid\n";
+            throw std::runtime_error ("It's not a convex trapezoid\n");
         } else {
             return *this;
         }
@@ -383,19 +370,22 @@ private:
         square = 0;
         int n = vertices.size();
         float a = getLength(vertices[0], vertices[1]);
-        square = (n * (a * a)) / 4 * tan(360 / 2 * n);
+        square = abs((n * (a * a)) / 4 * tan(360 / 2 * n));
     }
 
     void isFigure() override {
-        bool result;
+        bool result = false;
         float a = getLength(vertices[0], vertices[1]);
         float b = getLength(vertices [1], vertices[2]);
         float c = getLength(vertices[2], vertices[3]);
-        if (a == b == c){
-            result = true;
-        } else result = false;
 
-        if (size < 4 || result == false)
+        if ((a == b) == c){
+            result = false;
+        } else {
+            result = true;
+        }
+
+        if (size < 4 || !result)
             throw std::runtime_error("This is not a Regular Polygon\n");
     }
 
@@ -406,8 +396,7 @@ public:
             size = size_;
             isFigure();
         } else {
-            std::cout << "It's not convex regular Polygon";
-            exit(1);
+            throw std::runtime_error("It's not convex regular Polygon");
         }
     };
 
@@ -426,7 +415,7 @@ public:
 
     CRegularPolygon& operator = (const CTrapezoid &p){
         if (!isConvex(p.vertices)){
-            std::cout << "It's not a convex regular polygon";
+            throw std::runtime_error ("It's not a convex regular polygon");
         } else {
             return *this;
         }
@@ -441,7 +430,7 @@ public:
 int main(){
     //Point
     std::cout << "POINT\n";
-    CPoint point;
+    CPoint point{};
     point.set(5, 3);
     CPoint point1(point);
 
