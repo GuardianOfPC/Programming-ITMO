@@ -49,15 +49,20 @@ double Polynom::operator[](int index) {
     return ind[index];
 }
 
-void Polynom::operator*=(double num) {
+void Polynom::operator*=(double number) {
     for (auto& coefficient : ind)
-        coefficient.second *= num;
+        coefficient.second *= number;
 }
 
 void Polynom::operator*=(const Polynom &other) {
+    int key = 0;
+    auto result = Polynom();
     for (auto& coefficient: ind)
-        for (auto other_coefficient: other.ind)
-            coefficient.second *= other_coefficient.second;
+        for (auto &other_coefficient: other.ind){
+            key = coefficient.first + other_coefficient.first;
+            result.ind[key] = coefficient.second * other_coefficient.second;
+        }
+    *this = result;
 }
 
 Polynom Polynom::operator*(double num) {
@@ -98,7 +103,7 @@ void Polynom::print(std::ostream& ostream, std::pair<int, double> coefficient) {
 std::istream &operator>>(std::istream &istream, Polynom &p) {
     unsigned n_of_coefficients;
     istream >> n_of_coefficients;
-    std::pair<unsigned, double> coefficient;
+    std::pair<int, double> coefficient;
     while (n_of_coefficients--) {
         istream >> coefficient.first;
         istream >> coefficient.second;
@@ -108,7 +113,10 @@ std::istream &operator>>(std::istream &istream, Polynom &p) {
 }
 
 std::ostream &operator<<(std::ostream &ostream, const Polynom &p) {
-    auto counter = p.ind.begin();
+    auto counter = p.ind.begin();  ////проверка на пустую мапу
+    if (p.ind.empty()){
+        throw std::runtime_error ("Empty Map");
+    }
     std::pair<int, double> ind_first = *counter;
     ostream << ind_first.second << " * x^" << ind_first.first << ' ';
     for (++counter; counter != p.ind.end(); ++counter)
