@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/black/CLionProjects/Lab3/DataHandler.cpp
+cmath
+-
+DataHandler.h
+C:/Users/black/CLionProjects/Lab3/DataHandler.h
+
+C:/Users/black/CLionProjects/Lab3/DataHandler.h
+string
+-
+unordered_map
+-
+stop.h
+C:/Users/black/CLionProjects/Lab3/stop.h
+
+C:/Users/black/CLionProjects/Lab3/stop.h
+string
+-
+vector
+-
+
