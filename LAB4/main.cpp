@@ -1,25 +1,17 @@
 #include <iostream>
+#include <vector>
 
-template<class Input, class Predicate>
-bool all_of(Input first, Input last, Predicate upred) {
-    while (first != last) {
-        if (!upred(*first))
-            return false;
-        ++first;
-    }
-    return true;
-}
+#include "algos.h"
 
-template<class Input, class Predicate>
-bool any_of(Input first, Input last, Predicate upred) {
-    while (first != last) {
-        if (upred(*first))
-            return true;
-        ++first;
-    }
-    return false;
+bool is_even(int num) {
+    return num % 2 == 0;
 }
 
 
 int main() {
+    std::vector<int> test = {1, 2, 3, 2, 1};
+
+    lab::all_of(test.begin(), test.end(), is_even);
+
+    return 0;
 }
