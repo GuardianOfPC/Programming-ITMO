@@ -20,10 +20,10 @@ namespace lab {
     bool is_partitioned(ITERATOR first, ITERATOR last, UNARY_PRED un_pred);
 
     template<typename ITERATOR, typename ELEMENT>
-    std::pair<bool, ITERATOR> find_not(ITERATOR first, ITERATOR last, ELEMENT elem);
+    ITERATOR find_not(ITERATOR first, ITERATOR last, ELEMENT elem);
 
     template<typename ITERATOR, typename ELEMENT>
-    std::pair<bool, ITERATOR> find_backward(ITERATOR first, ITERATOR last, ELEMENT elem);
+    ITERATOR find_backward(ITERATOR first, ITERATOR last, ELEMENT elem);
 
     template<typename ITERATOR, typename BINARY_PRED>
     bool is_palindrome(ITERATOR first, ITERATOR last, BINARY_PRED bin_pred);

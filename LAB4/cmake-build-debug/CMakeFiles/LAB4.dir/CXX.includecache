@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/conik/CLionProjects/LAB4/algos.h
+algos.hpp
+C:/Users/conik/CLionProjects/LAB4/algos.hpp
+
+C:/Users/conik/CLionProjects/LAB4/algos.hpp
+
+C:/Users/conik/CLionProjects/LAB4/main.cpp
+iostream
+-
+vector
+-
+algos.h
+C:/Users/conik/CLionProjects/LAB4/algos.h
+
