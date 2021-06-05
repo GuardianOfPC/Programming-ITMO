@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.19)
-project(Lab5)
+cmake_minimum_required(VERSION 3.17)
+project(LAB5)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(Lab5 main.cpp circular_buffer.h Iterator.h Iterator.hpp)
+add_executable(LAB5 circular_buffer.cpp circular_buffer.h)
