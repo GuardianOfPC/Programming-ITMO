@@ -61,6 +61,7 @@ public:
 
     void push_back(const T &element) {
         if (full()) {
+            traits::destroy(allocator_, c_buffer + tail);
             tail = (tail + 1) % capacity;
         }
 
@@ -73,7 +74,8 @@ public:
 
     void push_front(const T &element) {
         if (full()) {
-            head = (head + 1) % capacity;
+            traits::destroy(allocator_, c_buffer + head);
+            head = (head - 1) % capacity;
         }
 
         if (empty()) {
@@ -83,11 +85,18 @@ public:
         traits::construct(allocator_, c_buffer + tail, element);
     }
 
-    T &operator[](unsigned index) {
+    T &operator[](int index) {
         if (index > capacity) {
             throw std::runtime_error("No such index");
         }
-        return *(c_buffer + index);
+        return *(c_buffer + (tail + index) % capacity);
+    }
+
+    const T &operator[](int index) const {
+        if (index > capacity) {
+            throw std::runtime_error("No such index");
+        }
+        return *(c_buffer + (tail + index) % capacity);
     }
 
     void reserve(unsigned new_capacity) {
@@ -110,6 +119,19 @@ public:
         }
     }
 
+    int size() {
+        if (full()) {
+            return capacity - 1;
+        }
+
+        if (empty()) {
+            return 0;
+        }
+
+        if (tail <= head) {
+            return head - tail + 1;
+        } else return capacity - head + tail + 1;
+    }
 
     class CIterator
             : public std::iterator<std::random_access_iterator_tag, T> {
@@ -117,10 +139,15 @@ public:
         T *ptr;
         unsigned capacity;
         int position;
+        int begin_point;
     public:
-        explicit CIterator(T *current_iterator, unsigned capacity, int position) : ptr(current_iterator), capacity(capacity), position(position){}
+        explicit CIterator(T *current_iterator, unsigned capacity, int position, int begin_p) : ptr(current_iterator),
+                                                                                                capacity(capacity),
+                                                                                                position(position),
+                                                                                                begin_point(begin_p) {}
 
-        CIterator(const CIterator &other) : ptr(other.ptr), capacity(other.capacity), position(other.position) {}
+        CIterator(const CIterator &other) : ptr(other.ptr), capacity(other.capacity), position(other.position),
+                                            begin_point(other.begin_point) {}
 
         CIterator &operator+=(int pos) {
             position = (position + pos) % capacity;
@@ -142,8 +169,8 @@ public:
             return *this;
         }
 
-        T operator*() const {
-            return *(ptr + position);
+        T &operator*() const {
+            return *(ptr + (begin_point + position) % capacity);
         }
 
         T *operator->() const {
@@ -180,10 +207,92 @@ public:
     };
 
     CIterator begin() {
-        return CIterator(c_buffer, capacity, tail);
+        return CIterator(c_buffer, capacity, 0, tail);
     }
 
     CIterator end() {
-        return CIterator(c_buffer, capacity,  (head + 1) % capacity);
+        return CIterator(c_buffer, capacity, size(), tail);
+    }
+
+    class Const_CIterator
+            : public std::iterator<std::random_access_iterator_tag, T> {
+    private:
+        T *ptr;
+        unsigned capacity;
+        int position;
+        int begin_point;
+    public:
+        explicit Const_CIterator(T *current_iterator, unsigned capacity, int position, int begin_p) : ptr(current_iterator),
+                                                                                                      capacity(capacity),
+                                                                                                      position(position),
+                                                                                                      begin_point(begin_p) {}
+
+        Const_CIterator(const Const_CIterator &other) : ptr(other.ptr), capacity(other.capacity),
+                                                        position(other.position),
+                                                        begin_point(other.begin_point) {}
+
+        Const_CIterator &operator+=(int pos) {
+            position = (position + pos) % capacity;
+            return *this;
+        }
+
+        Const_CIterator &operator-=(int pos) {
+            position = (position - pos) % capacity;
+            return *this;
+        }
+
+        Const_CIterator &operator++() {
+            position = (position + 1) % capacity;
+            return *this;
+        }
+
+        Const_CIterator &operator--() {
+            position = (position - 1) % capacity;
+            return *this;
+        }
+
+        const T &operator*() const {
+            return *(ptr + (begin_point + position) % capacity);
+        }
+
+        T *operator->() const {
+            return ptr + position;
+        }
+
+        T &operator[](int i) const {
+            return ptr[i];
+        }
+
+        bool operator>(const Const_CIterator &other) const {
+            return position > other.position;
+        }
+
+        bool operator<(const Const_CIterator &other) const {
+            return position < other.position;
+        }
+
+        bool operator>=(const Const_CIterator &other) const {
+            return position >= other.position;
+        }
+
+        bool operator<=(const Const_CIterator &other) const {
+            return position <= other.position;
+        }
+
+        bool operator!=(const Const_CIterator &other) const {
+            return position != other.position;
+        }
+
+        bool operator==(const Const_CIterator &other) const {
+            return position == other.position;
+        }
+    };
+
+    Const_CIterator begin() const {
+        return Const_CIterator(c_buffer, capacity, 0, tail);
+    }
+
+    Const_CIterator end() const {
+        return Const_CIterator(c_buffer, capacity, size(), tail);
     }
 };
