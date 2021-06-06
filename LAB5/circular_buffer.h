@@ -3,7 +3,7 @@
 template<class T, class Alloc = std::allocator<T>>
 class CCircular_Buffer {
 
-private:
+private: 
     T *c_buffer;
     int head = -1;
     int tail = -1;
@@ -11,16 +11,16 @@ private:
     Alloc allocator_;
     using traits = std::allocator_traits<decltype(allocator_)>;
 public:
-    friend class CIterator;
 
     explicit CCircular_Buffer(unsigned size) : capacity(size + 1) {
         c_buffer = traits::allocate(allocator_, capacity);
     };
 
     ~CCircular_Buffer() {
-        for (int i = tail;
-             i < head; i = (i + 1) % capacity) {
+        int i = tail;
+        while (i != (head + 1) % capacity) {
             traits::destroy(allocator_, c_buffer + i);
+            i = (i + 1) % capacity;
         }
         traits::deallocate(allocator_, c_buffer, capacity);
     };
@@ -41,7 +41,7 @@ public:
             throw std::runtime_error("Empty Buffer");
         }
         traits::destroy(allocator_, c_buffer + head);
-        if (empty()) {
+        if (tail == head) {
             tail = -1;
             head = -1;
         } else head = (head - 1) % capacity;
@@ -53,7 +53,7 @@ public:
             throw std::runtime_error("Empty Buffer");
         }
         traits::destroy(allocator_, c_buffer + tail);
-        if (empty()) {
+        if (tail == head) {
             tail = -1;
             head = -1;
         } else tail = (tail + 1) % capacity;
@@ -106,17 +106,43 @@ public:
             T *new_buffer = traits::allocate(allocator_, new_capacity);
             int i = 0;
             int j = tail;
-            while (j < (head + 1) % capacity) {
+            while (j != (head + 1) % capacity) {
                 traits::construct(allocator_, new_buffer + (i++), *(c_buffer + j));
                 j = (j + 1) % capacity;
             }
-            ~CCircular_Buffer();
+
+            i = tail;
+
+            while (i != (head + 1) % capacity) {
+                traits::destroy(allocator_, c_buffer + i);
+                i = (i + 1) % capacity;
+            }
+
+            tail = 0;
+            head = size() - 1;
+            capacity = new_capacity;
             c_buffer = new_buffer;
+            traits::deallocate(allocator_, c_buffer, capacity);
         }
 
-        if (new_capacity < capacity) {
-            throw std::runtime_error("Low Capacity");
-        }
+        if (new_capacity < capacity && size() < new_capacity) {
+            int i = 0;
+            int j = tail;
+            while (j != (head + 1) % capacity) {
+                traits::construct(allocator_, c_buffer + (i++), *(c_buffer + j));
+                j = (j + 1) % capacity;
+            }
+
+            i = tail;
+
+            while (i != (head + 1) % capacity) {
+                traits::destroy(allocator_, c_buffer + i);
+                i = (i + 1) % capacity;
+            }
+            tail = 0;
+            head = size() - 1;
+            capacity = new_capacity;
+        } else throw std::runtime_error("Low capacity");
     }
 
     int size() {
@@ -130,7 +156,7 @@ public:
 
         if (tail <= head) {
             return head - tail + 1;
-        } else return capacity - head + tail + 1;
+        } else return capacity - tail + head + 1;
     }
 
     class CIterator
@@ -178,7 +204,7 @@ public:
         }
 
         T &operator[](int i) const {
-            return ptr[i];
+            return ptr + position + i;
         }
 
         bool operator>(const CIterator &other) const {
@@ -255,12 +281,12 @@ public:
             return *(ptr + (begin_point + position) % capacity);
         }
 
-        T *operator->() const {
+        const T *operator->() const {
             return ptr + position;
         }
 
-        T &operator[](int i) const {
-            return ptr[i];
+        const T &operator[](int i) const {
+            return ptr + position + i;
         }
 
         bool operator>(const Const_CIterator &other) const {
