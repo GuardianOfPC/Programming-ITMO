@@ -3,7 +3,7 @@
 template<class T, class Alloc = std::allocator<T>>
 class CCircular_Buffer {
 
-private: 
+private:
     T *c_buffer;
     int head = -1;
     int tail = -1;
@@ -104,44 +104,50 @@ public:
 
         if (new_capacity > capacity) {
             T *new_buffer = traits::allocate(allocator_, new_capacity);
-            int i = 0;
-            int j = tail;
-            while (j != (head + 1) % capacity) {
-                traits::construct(allocator_, new_buffer + (i++), *(c_buffer + j));
-                j = (j + 1) % capacity;
+            if (!empty()) {
+                int i = 0;
+                int j = tail;
+                while (j != (head + 1) % capacity) {
+                    traits::construct(allocator_, new_buffer + (i++), *(c_buffer + j));
+                    j = (j + 1) % capacity;
+                }
+
+                i = tail;
+
+                while (i != (head + 1) % capacity) {
+                    traits::destroy(allocator_, c_buffer + i);
+                    i = (i + 1) % capacity;
+                }
+
+                tail = 0;
+                head = size() - 1;
             }
-
-            i = tail;
-
-            while (i != (head + 1) % capacity) {
-                traits::destroy(allocator_, c_buffer + i);
-                i = (i + 1) % capacity;
-            }
-
-            tail = 0;
-            head = size() - 1;
             capacity = new_capacity;
             c_buffer = new_buffer;
             traits::deallocate(allocator_, c_buffer, capacity);
         }
 
-        if (new_capacity < capacity && size() < new_capacity) {
-            int i = 0;
-            int j = tail;
-            while (j != (head + 1) % capacity) {
-                traits::construct(allocator_, c_buffer + (i++), *(c_buffer + j));
-                j = (j + 1) % capacity;
-            }
+        if (new_capacity < capacity) {
+            if (empty()) {
+                capacity = new_capacity;
+            } else if (size() < new_capacity) {
+                int i = 0;
+                int j = tail;
+                while (j != (head + 1) % capacity) {
+                    traits::construct(allocator_, c_buffer + (i++), *(c_buffer + j));
+                    j = (j + 1) % capacity;
+                }
 
-            i = tail;
+                i = tail;
 
-            while (i != (head + 1) % capacity) {
-                traits::destroy(allocator_, c_buffer + i);
-                i = (i + 1) % capacity;
+                while (i != (head + 1) % capacity) {
+                    traits::destroy(allocator_, c_buffer + i);
+                    i = (i + 1) % capacity;
+                }
+                tail = 0;
+                head = size() - 1;
+                capacity = new_capacity;
             }
-            tail = 0;
-            head = size() - 1;
-            capacity = new_capacity;
         } else throw std::runtime_error("Low capacity");
     }
 
@@ -248,10 +254,14 @@ public:
         int position;
         int begin_point;
     public:
-        explicit Const_CIterator(T *current_iterator, unsigned capacity, int position, int begin_p) : ptr(current_iterator),
-                                                                                                      capacity(capacity),
-                                                                                                      position(position),
-                                                                                                      begin_point(begin_p) {}
+        explicit Const_CIterator(T *current_iterator, unsigned capacity, int position, int begin_p) : ptr(
+                current_iterator),
+                                                                                                      capacity(
+                                                                                                              capacity),
+                                                                                                      position(
+                                                                                                              position),
+                                                                                                      begin_point(
+                                                                                                              begin_p) {}
 
         Const_CIterator(const Const_CIterator &other) : ptr(other.ptr), capacity(other.capacity),
                                                         position(other.position),
