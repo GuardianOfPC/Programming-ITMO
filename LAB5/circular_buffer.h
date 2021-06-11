@@ -125,9 +125,7 @@ public:
             capacity = new_capacity;
             c_buffer = new_buffer;
             traits::deallocate(allocator_, c_buffer, capacity);
-        }
-
-        if (new_capacity < capacity) {
+        } else if (new_capacity < capacity) {
             if (empty()) {
                 capacity = new_capacity;
             } else if (size() < new_capacity) {
@@ -148,7 +146,7 @@ public:
                 head = size() - 1;
                 capacity = new_capacity;
             }
-        } else throw std::runtime_error("Low capacity");
+        }
     }
 
     int size() {
