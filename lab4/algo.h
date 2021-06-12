@@ -68,8 +68,6 @@ namespace lab {
 
     template<class InputIterator, class T>
     InputIterator find_not(InputIterator first, InputIterator last, const T &val) {
-        if (first == last) return last;
-
         while (first != last) {
             if (*first != val) return first;
             ++first;
@@ -79,13 +77,9 @@ namespace lab {
 
     template<class InputIterator, class T>
     InputIterator find_backward(InputIterator first, InputIterator last, const T &val) {
-        if (first == last) return first;
-
         while (last != first) {
-            if (*last == val) return last;
-            --last;
+            if (*(--last) == val) return last;
         }
-        return last;
+        return first;
     }
-
 }

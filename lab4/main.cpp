@@ -8,7 +8,7 @@ bool is_even(int num) {
 }
 
 int main() {
-    std::vector<int> test = {5};
+    std::vector<int> test = {2};
 
     std::cout << "all_of = " << lab::all_of(test.begin(), test.end(), is_even) << '\n';
     std::cout << "any_of = " << lab::any_of(test.begin(), test.end(), is_even) << '\n';
