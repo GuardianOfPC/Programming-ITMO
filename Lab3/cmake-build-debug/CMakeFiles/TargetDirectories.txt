@@ -1,3 +1,0 @@
-C:/Users/black/CLionProjects/Lab3/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-C:/Users/black/CLionProjects/Lab3/cmake-build-debug/CMakeFiles/PROGA3.dir
-C:/Users/black/CLionProjects/Lab3/cmake-build-debug/CMakeFiles/edit_cache.dir
